@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MemeHub: AI Meme Generator</title>
+    <link rel="stylesheet" href="index.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/genai": "https://esm.sh/@google/genai"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <header class="app-header">
+      <h1><i class="fa-solid fa-robot"></i> MemeHub</h1>
+    </header>
+    <main class="container">
+      <div class="panel creator-panel">
+        <div id="canvas-container">
+          <canvas id="meme-canvas"></canvas>
+          <button id="remove-image-btn" style="display: none;"><i class="fa-solid fa-trash"></i></button>
+          <div id="image-placeholder">
+            <i class="fa-solid fa-image"></i>
+            <p>Generate an image with AI or upload your own</p>
+            <div class="placeholder-buttons">
+              <input type="file" id="image-upload" accept="image/*" style="display: none;" multiple />
+              <button id="upload-btn" class="button-secondary"><i class="fa-solid fa-upload"></i> Upload Image(s)</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="image-tray" class="image-tray" style="display: none;">
+          <!-- Image thumbnails will be inserted here -->
+        </div>
+        <div class="controls">
+            <h3 class="controls-title">
+              <i class="fa-solid fa-sliders"></i>
+              Text Controls
+            </h3>
+            <div class="control-group">
+              <label for="top-text-input">Top Text</label>
+              <input type="text" id="top-text-input" class="text-input" placeholder="Top text">
+            </div>
+            <div class="control-group">
+              <label for="bottom-text-input">Bottom Text</label>
+              <input type="text" id="bottom-text-input" class="text-input" placeholder="Bottom text">
+            </div>
+            <div class="quick-controls">
+              <div class="control-group compact">
+                <label for="font-size-slider">Font Size</label>
+                <input type="range" id="font-size-slider" min="10" max="100" value="40">
+              </div>
+              <div class="control-group compact">
+                <label for="text-color-picker">Text Color</label>
+                <input type="color" id="text-color-picker" value="#ffffff">
+              </div>
+            </div>
+        </div>
+      </div>
+      <div class="panel ai-panel">
+        <h2><i class="fa-solid fa-lightbulb"></i> AI Assistant</h2>
+        <div class="control-group">
+            <label for="prompt-input">Topic / Instruction</label>
+            <textarea id="prompt-input" placeholder="e.g., 'Bitcoin hitting ATH', 'add a party hat', or 'place head from source onto base'"></textarea>
+        </div>
+        <div class="control-group">
+            <label for="style-select">Meme Style</label>
+            <select id="style-select">
+                <option value="Auto">Auto</option>
+                <option value="Sarcastic">Sarcastic</option>
+                <option value="Bullish">Bullish</option>
+                <option value="Rekt">Rekt</option>
+                <option value="Degen">Degen</option>
+                <option value="Motivational">Motivational</option>
+            </select>
+        </div>
+        <div class="ai-actions-container">
+            <div class="action-item">
+                <button id="generate-btn" class="button button-primary">
+                    <span class="btn-text">Generate Image & Text</span>
+                    <span class="loader" style="display: none;"></span>
+                </button>
+                <i class="fa-solid fa-circle-info info-icon" data-tooltip="Generates a new image and captions from your topic. Ignores any selected images."></i>
+            </div>
+            <div class="action-item">
+                <button id="auto-meme-btn" class="button button-secondary" disabled>
+                     <i class="fa-solid fa-brain"></i>
+                    <span class="btn-text">Auto-Meme from Image</span>
+                </button>
+                <i class="fa-solid fa-circle-info info-icon" data-tooltip="Requires a 'Base' image (click thumbnail twice). Analyzes the image and automatically generates a complete meme concept with captions."></i>
+            </div>
+            <div class="action-item">
+                <button id="enhance-btn" class="button button-secondary" disabled>
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span class="btn-text">Enhance Image</span>
+                </button>
+                <i class="fa-solid fa-circle-info info-icon" data-tooltip="Requires a 'Base' image (click thumbnail twice) and a text instruction. Modifies that image based on your instruction (e.g., 'add a hat')."></i>
+            </div>
+            <div class="action-item">
+                <button id="combine-btn" class="button button-secondary" disabled>
+                    <i class="fa-solid fa-object-group"></i>
+                    <span class="btn-text">Combine Images</span>
+                </button>
+                <i class="fa-solid fa-circle-info info-icon" data-tooltip="Requires a 'Base' (click twice) and one or more 'Source' images (click once), plus a text instruction. Combines them based on your instruction (e.g., 'put the face from source onto base')."></i>
+            </div>
+        </div>
+        <div id="captions-container">
+            <h3>Suggestions</h3>
+            <ul id="captions-list">
+                <!-- AI captions will be inserted here -->
+            </ul>
+        </div>
+      </div>
+    </main>
+    <footer class="app-footer">
+        <button id="download-btn" class="button"><i class="fa-solid fa-download"></i> Download Meme</button>
+        <button id="share-twitter-btn" class="button button-x"><i class="fa-brands fa-x-twitter"></i> Share on X</button>
+        <button id="remix-btn" class="button"><i class="fa-solid fa-arrows-rotate"></i> Start Over</button>
+    </footer>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
