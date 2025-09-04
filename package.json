@@ -9,7 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@google/genai": "latest"
+    "@google/genai": "latest",
+    "@vercel/node": "^3.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

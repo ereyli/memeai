@@ -707,25 +707,161 @@ downloadBtn.addEventListener('click', () => {
     }
 });
 
-shareTwitterBtn.addEventListener('click', () => {
+shareTwitterBtn.addEventListener('click', async () => {
     if (!image) { 
         alert('Please create a meme before sharing!');
         return;
     }
 
-    alert('Your meme will be downloaded first. A new Twitter tab will then open for you to upload the downloaded image.');
-
-    if (triggerMemeDownload()) {
+    try {
+        // Convert canvas to blob for sharing
+        const canvas = document.getElementById('meme-canvas') as HTMLCanvasElement;
+        const dataUrl = canvas.toDataURL('image/png');
+        
+        // Create enhanced message with BURROWBURR.FUN branding
         const memeCaption = [topText, bottomText].filter(Boolean).join(' / ');
-        const fullText = `Check out this meme I made on MemeHub! ${memeCaption ? `"${memeCaption}"` : ''}\n\n#MemeHub #Crypto #Meme #Web3 #AI`;
+        const fullText = `🚀 Just created an epic meme with BurrMemeHub! ${memeCaption ? `"${memeCaption}"` : ''}\n\n🎨 Created by @burr_burrow for the Starknet community\n\n#BurrowBurr #Starknet #Crypto`;
         const encodedText = encodeURIComponent(fullText.trim());
 
-        setTimeout(() => {
-            const twitterUrl = `https://x.com/intent/tweet?text=${encodedText}`;
-            window.open(twitterUrl, '_blank');
-        }, 500);
+        // Show modal with sharing options
+        showSharingModal(dataUrl, encodedText);
+
+    } catch (error) {
+        console.error('Error sharing to X:', error);
+        alert('❌ Error sharing to X. Please try again.');
     }
 });
+
+// Create sharing modal with multiple options
+function showSharingModal(dataUrl: string, encodedText: string) {
+    // Create modal overlay
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        backdrop-filter: blur(10px);
+    `;
+
+    // Create modal content
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = `
+        background: var(--surface-color);
+        border: 2px solid var(--primary-color);
+        border-radius: 16px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    `;
+
+    modalContent.innerHTML = `
+        <h3 style="color: var(--primary-color); margin-bottom: 1rem;">
+            <i class="fa-solid fa-share-nodes"></i> Share Your BurrMemeHub Meme
+        </h3>
+        <div style="margin-bottom: 1.5rem;">
+            <img src="${dataUrl}" style="max-width: 200px; border-radius: 8px; border: 2px solid var(--primary-color);" alt="Your Meme">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
+            <button id="download-meme-btn" class="button button-primary" style="width: 100%;">
+                <i class="fa-solid fa-download"></i> Download Meme
+            </button>
+            <button id="copy-image-btn" class="button button-secondary" style="width: 100%;">
+                <i class="fa-solid fa-copy"></i> Copy Image to Clipboard
+            </button>
+            <button id="open-x-btn" class="button button-x" style="width: 100%;">
+                <i class="fa-brands fa-x-twitter"></i> Open X (Twitter)
+            </button>
+        </div>
+        <p style="color: var(--text-secondary-color); font-size: 0.9rem; margin-bottom: 1rem;">
+            💡 <strong>Tip:</strong> Download the image, then paste it directly into your X post!
+        </p>
+        <button id="close-modal-btn" class="button" style="background: var(--destructive-color);">
+            <i class="fa-solid fa-times"></i> Close
+        </button>
+    `;
+
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal);
+
+    // Event listeners for modal buttons
+    const downloadBtn = modalContent.querySelector('#download-meme-btn');
+    const copyBtn = modalContent.querySelector('#copy-image-btn');
+    const openXBtn = modalContent.querySelector('#open-x-btn');
+    const closeBtn = modalContent.querySelector('#close-modal-btn');
+
+    downloadBtn?.addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = 'memehub-meme.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Show success message
+        const originalText = downloadBtn.innerHTML;
+        downloadBtn.innerHTML = '<i class="fa-solid fa-check"></i> Downloaded!';
+        setTimeout(() => {
+            downloadBtn.innerHTML = originalText;
+        }, 2000);
+    });
+
+    copyBtn?.addEventListener('click', async () => {
+        try {
+            // Convert data URL to blob
+            const response = await fetch(dataUrl);
+            const blob = await response.blob();
+            
+            // Copy to clipboard
+            await navigator.clipboard.write([
+                new ClipboardItem({
+                    'image/png': blob
+                })
+            ]);
+            
+            // Show success message
+            const originalText = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+            setTimeout(() => {
+                copyBtn.innerHTML = originalText;
+            }, 2000);
+        } catch (error) {
+            console.error('Failed to copy image:', error);
+            alert('❌ Failed to copy image. Please try downloading instead.');
+        }
+    });
+
+    openXBtn?.addEventListener('click', () => {
+        const twitterUrl = `https://x.com/intent/tweet?text=${encodedText}`;
+        window.open(twitterUrl, '_blank');
+        
+        // Show success message
+        const originalText = openXBtn.innerHTML;
+        openXBtn.innerHTML = '<i class="fa-solid fa-check"></i> X Opened!';
+        setTimeout(() => {
+            openXBtn.innerHTML = originalText;
+        }, 2000);
+    });
+
+    closeBtn?.addEventListener('click', () => {
+        document.body.removeChild(modal);
+    });
+
+    // Close modal when clicking outside
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            document.body.removeChild(modal);
+        }
+    });
+}
 
 remixBtn.addEventListener('click', () => {
     setBaseImage(null);
